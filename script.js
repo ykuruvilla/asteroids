@@ -3,7 +3,7 @@ const SHIP_SIZE = 30; // ship height
 const TURN_SPEED = 360; // turn speed in degrees per second
 const SHIP_THRUST = 5; // acceleration of the ship
 const FRICTION = 0.7; // friction coefficient
-const ASTEROID_NUM = 3; // starting number of asteroids
+const ASTEROID_NUM = 300; // starting number of asteroids
 const ASTEROID_SIZE = 100; //starting size of asteroids
 const ASTEROID_SPEED = 50; // max starting speed of asteroids
 const ASTEROID_VERTICES = 10; //average number of vertices on each asteroid
@@ -31,11 +31,19 @@ const createAsteroidBelt = () => {
   asteroids = [];
   let x, y;
   for (let i = 0; i < ASTEROID_NUM; i++) {
-    x = Math.floor(Math.random() * canvas.width);
-    y = Math.floor(Math.random() * canvas.height);
+    do {
+      x = Math.floor(Math.random() * canvas.width);
+      y = Math.floor(Math.random() * canvas.height);
+    } while (
+      distBetweenPoints(ship.x, ship.y, x, y) <
+      (ASTEROID_SIZE / 2 + SHIP_SIZE / 2) * 2
+    );
     asteroids.push(newAsteroid(x, y));
   }
 };
+const distBetweenPoints = (x1, y1, x2, y2) =>
+  Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+
 const newAsteroid = (x, y) => {
   const asteroid = {
     x: x,
