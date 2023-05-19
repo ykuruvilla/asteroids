@@ -61,29 +61,30 @@ const update = () => {
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   // thrust the ship
-  ctx.fillStyle = "red";
-  ctx.strokeStyle = "yellow";
-  ctx.lineWidth = SHIP_SIZE / 10;
-  ctx.beginPath();
-  ctx.moveTo(
-    // rear left
-    ship.x - ship.r * ((2 / 3) * Math.cos(ship.a) + Math.sin(ship.a)),
-    ship.y + ship.r * ((2 / 3) * Math.sin(ship.a) - Math.cos(ship.a))
-  );
-  ctx.lineTo(
-    //rear centre behind the ship
-    ship.x - ship.r * ((2 / 3) * Math.cos(ship.a) + Math.sin(ship.a)),
-    ship.y + ship.r * ((2 / 3) * Math.sin(ship.a) - Math.cos(ship.a))
-  );
-  ctx.lineTo(
-    //rear right
-    ship.x - ship.r * ((2 / 3) * Math.cos(ship.a) - Math.sin(ship.a)),
-    ship.y + ship.r * ((2 / 3) * Math.sin(ship.a) + Math.cos(ship.a))
-  );
-  ctx.closePath();
-  ctx.stroke();
 
   if (ship.isThrusting) {
+    ctx.fillStyle = "red";
+    ctx.strokeStyle = "yellow";
+    ctx.lineWidth = SHIP_SIZE / 10;
+    ctx.beginPath();
+    ctx.moveTo(
+      // rear left
+      ship.x - ship.r * ((2 / 3) * Math.cos(ship.a) + 0.5 * Math.sin(ship.a)),
+      ship.y + ship.r * ((2 / 3) * Math.sin(ship.a) - 0.5 * Math.cos(ship.a))
+    );
+    ctx.lineTo(
+      //rear centre behind the ship
+      ship.x - ship.r * (5 / 3) * Math.cos(ship.a),
+      ship.y + ship.r * (5 / 3) * Math.sin(ship.a)
+    );
+    ctx.lineTo(
+      //rear right
+      ship.x - ship.r * ((2 / 3) * Math.cos(ship.a) - 0.5 * Math.sin(ship.a)),
+      ship.y + ship.r * ((2 / 3) * Math.sin(ship.a) + 0.5 * Math.cos(ship.a))
+    );
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
     ship.thrust.x += (SHIP_THRUST * Math.cos(ship.a)) / FPS;
     ship.thrust.y -= (SHIP_THRUST * Math.sin(ship.a)) / FPS;
   } else {
