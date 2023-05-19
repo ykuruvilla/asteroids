@@ -1,8 +1,12 @@
 const FPS = 30; // frames per second
-const SHIP_SIZE = 30;
+const SHIP_SIZE = 30; // ship height
 const TURN_SPEED = 360; // turn speed in degrees per second
 const SHIP_THRUST = 5; // acceleration of the ship
-const FRICTION = 0.7;
+const FRICTION = 0.7; // friction coefficient
+const ASTEROID_NUM = 3; // starting number of asteroids
+const ASTEROID_SIZE = 100; //starting size of asteroids
+const ASTEROID_SPEED = 50; // max starting speed of asteroids
+const ASTEROID_VERTICES = 10; //average number of vertices on each asteroid
 
 /** @type {HTMLCanvasElement} */
 const canvas = document.getElementById("gameCanvas");
@@ -20,6 +24,35 @@ const ship = {
     y: 0,
   },
 };
+
+let asteroids = [];
+
+const createAsteroidBelt = () => {
+  asteroids = [];
+  let x, y;
+  for (let i = 0; i < ASTEROID_NUM; i++) {
+    x = Math.floor(Math.random() * canvas.width);
+    y = Math.floor(Math.random() * canvas.height);
+    asteroids.push(newAsteroid(x, y));
+  }
+};
+const newAsteroid = (x, y) => {
+  const asteroid = {
+    x: x,
+    y: y,
+    xVelocity:
+      ((Math.random() * ASTEROID_SPEED) / FPS) * (Math.random() < 0.5 ? 1 : -1),
+    yVelocity:
+      ((Math.random() * ASTEROID_SPEED) / FPS) * (Math.random() < 0.5 ? 1 : -1),
+    radius: ASTEROID_SIZE / 2,
+    a: Math.random() * Math.PI * 2,
+    vertices: Math.floor(
+      Math.random() * (ASTEROID_VERTICES + 1) + ASTEROID_VERTICES / 2
+    ),
+  };
+  return asteroid;
+};
+createAsteroidBelt();
 
 //setup event listeners
 
@@ -133,6 +166,30 @@ const update = () => {
     ship.y = canvas.height + ship.r;
   } else if (ship.y > canvas.height + ship.r) {
     ship.y = 0 - ship.r;
+  }
+
+  //draw the asteroids
+  ctx.strokeStyle = "slategrey";
+  ctx.lineWidth = SHIP_SIZE / 20;
+  let x, y, radius, a, vertices;
+  for (let i = 0; i < asteroids.length; i++) {
+    x = asteroids[i].x;
+    y = asteroids[i].y;
+    radius = asteroids[i].radius;
+    a = asteroids[i].a;
+    vertices = asteroids[i].vertices;
+
+    ctx.beginPath();
+    ctx.moveTo(x + radius * Math.cos(a), y + radius * Math.sin(a));
+
+    for (let j = 0; j < vertices; j++) {
+      ctx.lineTo(
+        x + radius * Math.cos(a + (j * Math.PI * 2) / vertices),
+        y + radius * Math.sin(a + (j * Math.PI * 2) / vertices)
+      );
+    }
+    ctx.closePath();
+    ctx.stroke();
   }
 
   //center dot
