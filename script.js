@@ -3,10 +3,11 @@ const SHIP_SIZE = 30; // ship height
 const TURN_SPEED = 360; // turn speed in degrees per second
 const SHIP_THRUST = 5; // acceleration of the ship
 const FRICTION = 0.7; // friction coefficient
-const ASTEROID_NUM = 300; // starting number of asteroids
+const ASTEROID_NUM = 3; // starting number of asteroids
 const ASTEROID_SIZE = 100; //starting size of asteroids
 const ASTEROID_SPEED = 50; // max starting speed of asteroids
 const ASTEROID_VERTICES = 10; //average number of vertices on each asteroid
+const ASTEROID_JAG = 0.4; //jaggedness of the asteroids
 
 /** @type {HTMLCanvasElement} */
 const canvas = document.getElementById("gameCanvas");
@@ -57,7 +58,14 @@ const newAsteroid = (x, y) => {
     vertices: Math.floor(
       Math.random() * (ASTEROID_VERTICES + 1) + ASTEROID_VERTICES / 2
     ),
+    offset: [],
   };
+  //create the vertex offsets array
+
+  for (let i = 0; i < asteroid.vertices; i++) {
+    asteroid.offset.push(Math.random() * ASTEROID_JAG * 2 + 1 - ASTEROID_JAG);
+  }
+
   return asteroid;
 };
 createAsteroidBelt();
@@ -179,21 +187,25 @@ const update = () => {
   //draw the asteroids
   ctx.strokeStyle = "slategrey";
   ctx.lineWidth = SHIP_SIZE / 20;
-  let x, y, radius, a, vertices;
+  let x, y, radius, a, vertices, offset;
   for (let i = 0; i < asteroids.length; i++) {
     x = asteroids[i].x;
     y = asteroids[i].y;
     radius = asteroids[i].radius;
     a = asteroids[i].a;
     vertices = asteroids[i].vertices;
+    offset = asteroids[i].offset;
 
     ctx.beginPath();
-    ctx.moveTo(x + radius * Math.cos(a), y + radius * Math.sin(a));
+    ctx.moveTo(
+      x + radius * offset[0] * Math.cos(a),
+      y + radius * offset[0] * Math.sin(a)
+    );
 
-    for (let j = 0; j < vertices; j++) {
+    for (let j = 1; j < vertices; j++) {
       ctx.lineTo(
-        x + radius * Math.cos(a + (j * Math.PI * 2) / vertices),
-        y + radius * Math.sin(a + (j * Math.PI * 2) / vertices)
+        x + radius * offset[j] * Math.cos(a + (j * Math.PI * 2) / vertices),
+        y + radius * offset[j] * Math.sin(a + (j * Math.PI * 2) / vertices)
       );
     }
     ctx.closePath();
