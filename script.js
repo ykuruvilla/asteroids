@@ -3,7 +3,7 @@ const SHIP_SIZE = 30; // ship height
 const TURN_SPEED = 360; // turn speed in degrees per second
 const SHIP_THRUST = 5; // acceleration of the ship
 const FRICTION = 0.7; // friction coefficient
-const ASTEROID_NUM = 3; // starting number of asteroids
+const ASTEROID_NUM = 10; // starting number of asteroids
 const ASTEROID_SIZE = 100; //starting size of asteroids
 const ASTEROID_SPEED = 50; // max starting speed of asteroids
 const ASTEROID_VERTICES = 10; //average number of vertices on each asteroid
@@ -210,6 +210,23 @@ const update = () => {
     }
     ctx.closePath();
     ctx.stroke();
+
+    //move the asteroids
+    asteroids[i].x += asteroids[i].xVelocity;
+    asteroids[i].y += asteroids[i].yVelocity;
+
+    //handle edge of screen
+    if (asteroids[i].x < 0 - asteroids[i].radius) {
+      asteroids[i].x = canvas.width + asteroids[i].radius;
+    } else if (asteroids[i].x > canvas.width + asteroids[i].radius) {
+      asteroids[i].x = 0 - asteroids[i].radius;
+    }
+
+    if (asteroids[i].y < 0 - asteroids[i].radius) {
+      asteroids[i].y = canvas.height + asteroids[i].radius;
+    } else if (asteroids[i].y > canvas.height + asteroids[i].radius) {
+      asteroids[i].y = 0 - asteroids[i].radius;
+    }
   }
 
   //center dot
