@@ -25,14 +25,20 @@ const TEXT_SIZE = 40; //text font size (px)
 
 const GAME_LIVES = 3; //starting number of lives
 
+const ASTEROID_POINTS_LG = 20;
+const ASTEROID_POINTS_MD = 50;
+const ASTEROID_POINTS_SM = 100;
+
 /** @type {HTMLCanvasElement} */
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-let level, ship, asteroids, text, textTransparency, lives;
+let level, ship, asteroids, text, textTransparency, lives, score, highScore;
 
 const newGame = () => {
   level = 0;
+  score = 0;
+  highScore = 100;
   lives = GAME_LIVES;
   ship = newShip();
   newLevel();
@@ -169,9 +175,18 @@ const destroyAsteroid = (index) => {
   if (r === Math.ceil(ASTEROID_SIZE / 2)) {
     asteroids.push(newAsteroid(x, y, ASTEROID_SIZE / 4));
     asteroids.push(newAsteroid(x, y, ASTEROID_SIZE / 4));
+    score += ASTEROID_POINTS_LG;
   } else if (r === Math.ceil(ASTEROID_SIZE / 4)) {
     asteroids.push(newAsteroid(x, y, ASTEROID_SIZE / 8));
     asteroids.push(newAsteroid(x, y, ASTEROID_SIZE / 8));
+    score += score + ASTEROID_POINTS_MD;
+  } else {
+    score += ASTEROID_POINTS_SM;
+  }
+
+  //check high-score
+  if (score > highScore) {
+    highScore = score;
   }
 
   //destroy the original asteroid that was hit
@@ -575,6 +590,20 @@ const update = () => {
       lifeColor
     );
   }
+
+  //draw the score
+  ctx.textAlign = "right";
+  ctx.textBaseline = "middle";
+  ctx.fillStyle = "white";
+  ctx.font = `${TEXT_SIZE * 0.5}px arial`;
+  ctx.fillText(score, canvas.width - SHIP_SIZE / 2, TEXT_SIZE);
+
+  //draw the highscore
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillStyle = "white";
+  ctx.font = `${TEXT_SIZE * 0.5}px arial`;
+  ctx.fillText(`Best: ${highScore}`, canvas.width / 2, TEXT_SIZE);
 };
 
 setInterval(update, 1000 / FPS);
