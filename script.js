@@ -12,6 +12,9 @@ const ASTEROID_SPEED = 50; // max starting speed of asteroids
 const ASTEROID_VERTICES = 10; //average number of vertices on each asteroid
 const ASTEROID_JAG = 0.4; //jaggedness of the asteroids
 
+const LASER_MAX = 10; //max number of lasers on the screen at once
+const LASER_SPEED = 500; //laser speed in px/s
+
 const SHOW_CENTRE_DOT = false;
 const SHOW_BOUNDING = false; //show or hide collision bounding
 
@@ -34,9 +37,26 @@ const newShip = () => {
     },
     blinkTime: Math.ceil(SHIP_BLINK_DURATION * FPS),
     blinkNumber: Math.ceil(SHIP_INV_DURATION / SHIP_BLINK_DURATION),
+    canShoot: true,
+    lasers: [],
   };
 };
 let ship = newShip();
+
+const shootLaser = () => {
+  //create laser object
+  console.log(ship.canShoot);
+  if (ship.canShoot && ship.lasers.length < LASER_MAX) {
+    ship.lasers.push({
+      x: ship.x + (4 / 3) * ship.r * Math.cos(ship.a),
+      y: ship.y - (4 / 3) * ship.r * Math.sin(ship.a),
+      xVelocity: (LASER_SPEED * Math.cos(ship.a)) / FPS,
+      yVelocity: (LASER_SPEED * Math.sin(ship.a)) / FPS,
+    });
+  }
+  //prevent further shooting
+  ship.canShoot = false;
+};
 
 let asteroids = [];
 
@@ -90,6 +110,10 @@ const explodeShip = () => {
 
 const onKeyDown = (event) => {
   switch (event.keyCode) {
+    case 32: //spacebar
+      shootLaser();
+      console.log(ship.lasers);
+      break;
     case 37: //left arrow -rotate ship left
       ship.rotation = ((TURN_SPEED / 180) * Math.PI) / FPS;
       break;
@@ -104,6 +128,9 @@ const onKeyDown = (event) => {
 
 const onKeyUp = (event) => {
   switch (event.keyCode) {
+    case 32: //spacebar
+      ship.canShoot = true;
+      break;
     case 37:
       ship.rotation = 0;
       break;
@@ -183,7 +210,7 @@ const update = () => {
     ctx.arc(ship.x, ship.y, ship.r * 0.8, 0, Math.PI * 2, false);
     ctx.fill();
 
-    ctx.fillStyle = "whitee";
+    ctx.fillStyle = "white";
     ctx.beginPath();
     ctx.arc(ship.x, ship.y, ship.r * 0.5, 0, Math.PI * 2, false);
     ctx.fill();
@@ -200,6 +227,21 @@ const update = () => {
   if (SHOW_CENTRE_DOT) {
     ctx.fillStyle = "red";
     ctx.fillRect(ship.x - 1, ship.y - 1, 2, 2);
+  }
+
+  //draw lasers
+  for (let i = 0; i < ship.lasers.length; i++) {
+    ctx.fillStyle = "salmon";
+    ctx.beginPath();
+    ctx.arc(
+      ship.lasers[i].x,
+      ship.lasers[i].y,
+      SHIP_SIZE / 15,
+      0,
+      Math.PI * 2,
+      false
+    );
+    ctx.fill();
   }
 
   if (!shipIsExploding) {
