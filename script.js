@@ -109,40 +109,6 @@ const update = () => {
   ctx.fillStyle = "black";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // thrust the ship
-
-  if (ship.isThrusting) {
-    ctx.fillStyle = "red";
-    ctx.strokeStyle = "yellow";
-    ctx.lineWidth = SHIP_SIZE / 10;
-    ctx.beginPath();
-    ctx.moveTo(
-      // rear left
-      ship.x - ship.r * ((2 / 3) * Math.cos(ship.a) + 0.5 * Math.sin(ship.a)),
-      ship.y + ship.r * ((2 / 3) * Math.sin(ship.a) - 0.5 * Math.cos(ship.a))
-    );
-    ctx.lineTo(
-      //rear centre behind the ship
-      ship.x - ship.r * (5 / 3) * Math.cos(ship.a),
-      ship.y + ship.r * (5 / 3) * Math.sin(ship.a)
-    );
-    ctx.lineTo(
-      //rear right
-      ship.x - ship.r * ((2 / 3) * Math.cos(ship.a) - 0.5 * Math.sin(ship.a)),
-      ship.y + ship.r * ((2 / 3) * Math.sin(ship.a) + 0.5 * Math.cos(ship.a))
-    );
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-    ship.thrust.x += (SHIP_THRUST * Math.cos(ship.a)) / FPS;
-    ship.thrust.y -= (SHIP_THRUST * Math.sin(ship.a)) / FPS;
-  } else {
-    ship.thrust.x -= (FRICTION * ship.thrust.x) / FPS;
-    ship.thrust.y -= (FRICTION * ship.thrust.y) / FPS;
-  }
-
-  // draw the thruster
-
   //draw triangular ship
   ctx.strokeStyle = "white";
   ctx.lineWidth = SHIP_SIZE / 20;
@@ -182,6 +148,39 @@ const update = () => {
     ship.y = canvas.height + ship.r;
   } else if (ship.y > canvas.height + ship.r) {
     ship.y = 0 - ship.r;
+  }
+
+  // thrust the ship
+
+  if (ship.isThrusting) {
+    // draw the thruster
+    ctx.fillStyle = "red";
+    ctx.strokeStyle = "yellow";
+    ctx.lineWidth = SHIP_SIZE / 10;
+    ctx.beginPath();
+    ctx.moveTo(
+      // rear left
+      ship.x - ship.r * ((2 / 3) * Math.cos(ship.a) + 0.5 * Math.sin(ship.a)),
+      ship.y + ship.r * ((2 / 3) * Math.sin(ship.a) - 0.5 * Math.cos(ship.a))
+    );
+    ctx.lineTo(
+      //rear centre behind the ship
+      ship.x - ship.r * (5 / 3) * Math.cos(ship.a),
+      ship.y + ship.r * (5 / 3) * Math.sin(ship.a)
+    );
+    ctx.lineTo(
+      //rear right
+      ship.x - ship.r * ((2 / 3) * Math.cos(ship.a) - 0.5 * Math.sin(ship.a)),
+      ship.y + ship.r * ((2 / 3) * Math.sin(ship.a) + 0.5 * Math.cos(ship.a))
+    );
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ship.thrust.x += (SHIP_THRUST * Math.cos(ship.a)) / FPS;
+    ship.thrust.y -= (SHIP_THRUST * Math.sin(ship.a)) / FPS;
+  } else {
+    ship.thrust.x -= (FRICTION * ship.thrust.x) / FPS;
+    ship.thrust.y -= (FRICTION * ship.thrust.y) / FPS;
   }
 
   //draw the asteroids
