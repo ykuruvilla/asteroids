@@ -7,7 +7,7 @@ const SHIP_EXPLODE_DURATION = 0.3; //duration of the ship's explosion
 const SHIP_INV_DURATION = 3; //duration of the ship's invulnerability
 const SHIP_BLINK_DURATION = 0.1;
 const FRICTION = 0.7; // friction coefficient
-const ASTEROID_NUM = 3; // starting number of asteroids
+const ASTEROID_NUM = 2; // starting number of asteroids
 const ASTEROID_SIZE = 100; //starting size of asteroids
 const ASTEROID_SPEED = 50; // max starting speed of asteroids
 const ASTEROID_VERTICES = 10; //average number of vertices on each asteroid
@@ -26,9 +26,9 @@ const TEXT_SIZE = 40; //text font size (px)
 
 const GAME_LIVES = 3; //starting number of lives
 
-const ASTEROID_POINTS_LG = 20;
-const ASTEROID_POINTS_MD = 50;
-const ASTEROID_POINTS_SM = 100;
+const ASTEROID_POINTS_LG = 5;
+const ASTEROID_POINTS_MD = 10;
+const ASTEROID_POINTS_SM = 15;
 
 /** @type {HTMLCanvasElement} */
 const canvas = document.getElementById("gameCanvas");
