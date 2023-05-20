@@ -6,12 +6,12 @@ const SHIP_EXPLODE_DURATION = 0.3; //duration of the ship's explosion
 const SHIP_INV_DURATION = 3; //duration of the ship's invulnerability
 const SHIP_BLINK_DURATION = 0.1;
 const FRICTION = 0.7; // friction coefficient
-const ASTEROID_NUM = 4; // starting number of asteroids
+const ASTEROID_NUM = 1; // starting number of asteroids
 const ASTEROID_SIZE = 100; //starting size of asteroids
 const ASTEROID_SPEED = 50; // max starting speed of asteroids
 const ASTEROID_VERTICES = 10; //average number of vertices on each asteroid
 const ASTEROID_JAG = 0.4; //jaggedness of the asteroids
-const LASER_DIST = 0.5; //max dist laser can travel
+const LASER_DIST = 0.6; //max dist laser can travel
 
 const LASER_MAX = 10; //max number of lasers on the screen at once
 const LASER_SPEED = 500; //laser speed in px/s
@@ -20,18 +20,24 @@ const LASER_EXPLODE_DUR = 0.1; //duration of the laser's explosion
 const SHOW_CENTRE_DOT = false;
 const SHOW_BOUNDING = false; //show or hide collision bounding
 
+const TEXT_FADE_TIME = 2.5;
+const TEXT_SIZE = 40; //text font size (px)
+
 /** @type {HTMLCanvasElement} */
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-let level, ship, asteroids;
+let level, ship, asteroids, text, textTransparency;
 
 const newGame = () => {
+  level = 0;
   ship = newShip();
   newLevel();
 };
 
 const newLevel = () => {
+  text = `Level: ${level + 1}`;
+  textTransparency = 1.0;
   createAsteroidBelt();
 };
 
@@ -74,7 +80,7 @@ const shootLaser = () => {
 const createAsteroidBelt = () => {
   asteroids = [];
   let x, y;
-  for (let i = 0; i < ASTEROID_NUM; i++) {
+  for (let i = 0; i < ASTEROID_NUM + level; i++) {
     do {
       x = Math.floor(Math.random() * canvas.width);
       y = Math.floor(Math.random() * canvas.height);
@@ -90,13 +96,16 @@ const distBetweenPoints = (x1, y1, x2, y2) =>
   Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
 
 const newAsteroid = (x, y, r) => {
+  const levelMultiplier = 1 + 0.1 * level;
   const asteroid = {
     x: x,
     y: y,
     xVelocity:
-      ((Math.random() * ASTEROID_SPEED) / FPS) * (Math.random() < 0.5 ? 1 : -1),
+      ((Math.random() * ASTEROID_SPEED * levelMultiplier) / FPS) *
+      (Math.random() < 0.5 ? 1 : -1),
     yVelocity:
-      ((Math.random() * ASTEROID_SPEED) / FPS) * (Math.random() < 0.5 ? 1 : -1),
+      ((Math.random() * ASTEROID_SPEED * levelMultiplier) / FPS) *
+      (Math.random() < 0.5 ? 1 : -1),
     radius: r,
     a: Math.random() * Math.PI * 2,
     vertices: Math.floor(
@@ -134,6 +143,12 @@ const destroyAsteroid = (index) => {
 
   //destroy the original asteroid that was hit
   asteroids.splice(index, 1);
+
+  //new level when no more asteroids
+  if (asteroids.length === 0) {
+    level++;
+    newLevel();
+  }
 };
 
 //setup event listeners
@@ -507,6 +522,16 @@ const update = () => {
     } else if (asteroids[i].y > canvas.height + asteroids[i].radius) {
       asteroids[i].y = 0 - asteroids[i].radius;
     }
+  }
+
+  //draw game text
+  if (textTransparency >= 0) {
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillStyle = `rgba(255,255,255,${textTransparency})`;
+    ctx.font = `small-caps ${TEXT_SIZE}px arial`;
+    ctx.fillText(text, canvas.width / 2, canvas.height * 0.75);
+    textTransparency -= 1.0 / TEXT_FADE_TIME / FPS;
   }
 };
 
