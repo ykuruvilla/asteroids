@@ -1,3 +1,4 @@
+const SAVE_KEY_SCORE = "highscore"; //save key for local storage of score
 const FPS = 30; // frames per second
 const SHIP_SIZE = 30; // ship height
 const TURN_SPEED = 360; // turn speed in degrees per second
@@ -38,9 +39,10 @@ let level, ship, asteroids, text, textTransparency, lives, score, highScore;
 const newGame = () => {
   level = 0;
   score = 0;
-  highScore = 100;
   lives = GAME_LIVES;
   ship = newShip();
+  highScore = parseInt(localStorage.getItem(SAVE_KEY_SCORE)) || 0;
+
   newLevel();
 };
 
@@ -187,6 +189,7 @@ const destroyAsteroid = (index) => {
   //check high-score
   if (score > highScore) {
     highScore = score;
+    localStorage.setItem(SAVE_KEY_SCORE, score);
   }
 
   //destroy the original asteroid that was hit
