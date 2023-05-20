@@ -216,12 +216,12 @@ const update = () => {
     ctx.fill();
   }
 
-  //   if (SHOW_BOUNDING) {
-  //     ctx.strokeStyle = "lime";
-  //     ctx.beginPath();
-  //     ctx.arc(ship.x, ship.y, ship.r, 0, Math.PI * 2, false);
-  //     ctx.stroke();
-  //   }
+  if (SHOW_BOUNDING) {
+    ctx.strokeStyle = "lime";
+    ctx.beginPath();
+    ctx.arc(ship.x, ship.y, ship.r, 0, Math.PI * 2, false);
+    ctx.stroke();
+  }
 
   //center dot
   if (SHOW_CENTRE_DOT) {
@@ -242,6 +242,33 @@ const update = () => {
       false
     );
     ctx.fill();
+  }
+
+  //detect laser hitting asteroid
+  let asteroidX, asteroidY, asteroidR, laserX, laserY;
+  for (let i = asteroids.length - 1; i >= 0; i--) {
+    asteroidX = asteroids[i].x;
+    asteroidY = asteroids[i].y;
+    asteroidR = asteroids[i].radius;
+
+    //loop over lasers
+    for (let j = ship.lasers.length - 1; j >= 0; j--) {
+      laserX = ship.lasers[j].x;
+      laserY = ship.lasers[j].y;
+      console.log(laserX);
+      console.log(laserY);
+
+      //detect hits
+      if (distBetweenPoints(asteroidX, asteroidY, laserX, laserY) < asteroidR) {
+        console.log("hit");
+        //remove the laser
+        ship.lasers.splice(j, 1);
+        //remove the asteroid
+        asteroids.splice(i, 1);
+
+        break;
+      }
+    }
   }
 
   if (!shipIsExploding) {
@@ -320,7 +347,6 @@ const update = () => {
   //move the lasers
 
   for (let i = ship.lasers.length - 1; i >= 0; i--) {
-    console.log(ship.lasers[i].distanceTravelled);
     //check distance travelled
     if (ship.lasers[i].distanceTravelled > LASER_DIST * canvas.width) {
       ship.lasers.splice(i, 1);
