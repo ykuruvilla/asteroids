@@ -24,6 +24,17 @@ const SHOW_BOUNDING = false; //show or hide collision bounding
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
+let level, ship, asteroids;
+
+const newGame = () => {
+  ship = newShip();
+  newLevel();
+};
+
+const newLevel = () => {
+  createAsteroidBelt();
+};
+
 const newShip = () => {
   return {
     x: canvas.width / 2,
@@ -43,7 +54,6 @@ const newShip = () => {
     lasers: [],
   };
 };
-let ship = newShip();
 
 const shootLaser = () => {
   //create laser object
@@ -61,8 +71,6 @@ const shootLaser = () => {
   ship.canShoot = false;
 };
 
-let asteroids = [];
-
 const createAsteroidBelt = () => {
   asteroids = [];
   let x, y;
@@ -77,6 +85,7 @@ const createAsteroidBelt = () => {
     asteroids.push(newAsteroid(x, y, Math.ceil(ASTEROID_SIZE / 2)));
   }
 };
+
 const distBetweenPoints = (x1, y1, x2, y2) =>
   Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
 
@@ -104,7 +113,6 @@ const newAsteroid = (x, y, r) => {
 
   return asteroid;
 };
-createAsteroidBelt();
 
 const explodeShip = () => {
   ship.explodeTime = Math.ceil(SHIP_EXPLODE_DURATION * FPS);
@@ -114,8 +122,6 @@ const destroyAsteroid = (index) => {
   const x = asteroids[index].x;
   const y = asteroids[index].y;
   const r = asteroids[index].radius;
-
-  console.log(r === Math.ceil(ASTEROID_SIZE / 2));
 
   //split the asteroid in two (if necessary)
   if (r === Math.ceil(ASTEROID_SIZE / 2)) {
@@ -168,8 +174,8 @@ const onKeyUp = (event) => {
 
 document.addEventListener("keydown", onKeyDown);
 document.addEventListener("keyup", onKeyUp);
-
 //setup game loop
+newGame();
 const update = () => {
   const blinkOn = ship.blinkNumber % 2 === 0;
   let shipIsExploding = ship.explodeTime > 0;
