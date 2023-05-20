@@ -72,13 +72,13 @@ const createAsteroidBelt = () => {
       distBetweenPoints(ship.x, ship.y, x, y) <
       (ASTEROID_SIZE / 2 + SHIP_SIZE / 2) * 2
     );
-    asteroids.push(newAsteroid(x, y));
+    asteroids.push(newAsteroid(x, y, Math.ceil(ASTEROID_SIZE / 2)));
   }
 };
 const distBetweenPoints = (x1, y1, x2, y2) =>
   Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
 
-const newAsteroid = (x, y) => {
+const newAsteroid = (x, y, r) => {
   const asteroid = {
     x: x,
     y: y,
@@ -86,13 +86,14 @@ const newAsteroid = (x, y) => {
       ((Math.random() * ASTEROID_SPEED) / FPS) * (Math.random() < 0.5 ? 1 : -1),
     yVelocity:
       ((Math.random() * ASTEROID_SPEED) / FPS) * (Math.random() < 0.5 ? 1 : -1),
-    radius: ASTEROID_SIZE / 2,
+    radius: r,
     a: Math.random() * Math.PI * 2,
     vertices: Math.floor(
       Math.random() * (ASTEROID_VERTICES + 1) + ASTEROID_VERTICES / 2
     ),
     offset: [],
   };
+
   //create the vertex offsets array
 
   for (let i = 0; i < asteroid.vertices; i++) {
@@ -105,6 +106,26 @@ createAsteroidBelt();
 
 const explodeShip = () => {
   ship.explodeTime = Math.ceil(SHIP_EXPLODE_DURATION * FPS);
+};
+
+const destroyAsteroid = (index) => {
+  const x = asteroids[index].x;
+  const y = asteroids[index].y;
+  const r = asteroids[index].radius;
+
+  console.log(r === Math.ceil(ASTEROID_SIZE / 2));
+
+  //split the asteroid in two (if necessary)
+  if (r === Math.ceil(ASTEROID_SIZE / 2)) {
+    asteroids.push(newAsteroid(x, y, ASTEROID_SIZE / 4));
+    asteroids.push(newAsteroid(x, y, ASTEROID_SIZE / 4));
+  } else if (r === Math.ceil(ASTEROID_SIZE / 4)) {
+    asteroids.push(newAsteroid(x, y, ASTEROID_SIZE / 8));
+    asteroids.push(newAsteroid(x, y, ASTEROID_SIZE / 8));
+  }
+
+  //destroy the original asteroid that was hit
+  asteroids.splice(index, 1);
 };
 
 //setup event listeners
@@ -255,16 +276,13 @@ const update = () => {
     for (let j = ship.lasers.length - 1; j >= 0; j--) {
       laserX = ship.lasers[j].x;
       laserY = ship.lasers[j].y;
-      console.log(laserX);
-      console.log(laserY);
 
       //detect hits
       if (distBetweenPoints(asteroidX, asteroidY, laserX, laserY) < asteroidR) {
-        console.log("hit");
         //remove the laser
         ship.lasers.splice(j, 1);
         //remove the asteroid
-        asteroids.splice(i, 1);
+        destroyAsteroid(i);
 
         break;
       }
@@ -280,6 +298,8 @@ const update = () => {
           ship.r + asteroids[i].radius
         ) {
           explodeShip();
+          destroyAsteroid(i);
+          break;
         }
       }
     }
