@@ -1,5 +1,6 @@
 const SAVE_KEY_SCORE = "highscore"; //save key for local storage of score
 const FPS = 30; // frames per second
+
 const SHIP_SIZE = 30; // ship height
 const TURN_SPEED = 360; // turn speed in degrees per second
 const SHIP_THRUST = 5; // acceleration of the ship
@@ -12,8 +13,11 @@ const ASTEROID_SIZE = 100; //starting size of asteroids
 const ASTEROID_SPEED = 50; // max starting speed of asteroids
 const ASTEROID_VERTICES = 10; //average number of vertices on each asteroid
 const ASTEROID_JAG = 0.4; //jaggedness of the asteroids
-const LASER_DIST = 0.6; //max dist laser can travel
+const ASTEROID_POINTS_LG = 5;
+const ASTEROID_POINTS_MD = 10;
+const ASTEROID_POINTS_SM = 15;
 
+const LASER_DIST = 0.45; //max dist laser can travel
 const LASER_MAX = 10; //max number of lasers on the screen at once
 const LASER_SPEED = 500; //laser speed in px/s
 const LASER_EXPLODE_DUR = 0.1; //duration of the laser's explosion
@@ -25,16 +29,15 @@ const TEXT_FADE_TIME = 2.5;
 const TEXT_SIZE = 40; //text font size (px)
 
 const GAME_LIVES = 3; //starting number of lives
-
-const ASTEROID_POINTS_LG = 5;
-const ASTEROID_POINTS_MD = 10;
-const ASTEROID_POINTS_SM = 15;
+const SOUND_ON = true;
+const MUSIC_ON = true;
 
 /** @type {HTMLCanvasElement} */
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
 let level, ship, asteroids, text, textTransparency, lives, score, highScore;
+let asteroidsLeft, asteroidsTotal;
 
 const newGame = () => {
   level = 0;
@@ -84,6 +87,7 @@ const shootLaser = () => {
       distanceTravelled: 0,
       explodeTime: 0,
     });
+    fxLaser.play();
   }
   //prevent further shooting
   ship.canShoot = false;
@@ -114,6 +118,8 @@ const drawShip = (x, y, a, r, color = "white") => {
 
 const createAsteroidBelt = () => {
   asteroids = [];
+  asteroidsTotal = (ASTEROID_NUM + level) * 7;
+  asteroidsLeft = asteroidsTotal;
   let x, y;
   for (let i = 0; i < ASTEROID_NUM + level; i++) {
     do {
@@ -160,6 +166,7 @@ const newAsteroid = (x, y, r) => {
 
 const explodeShip = () => {
   ship.explodeTime = Math.ceil(SHIP_EXPLODE_DURATION * FPS);
+  fxExplode.play();
 };
 
 const gameOver = () => {
@@ -194,6 +201,13 @@ const destroyAsteroid = (index) => {
 
   //destroy the original asteroid that was hit
   asteroids.splice(index, 1);
+  fxHit.play();
+
+  //calculate the ratio of remaining asteroids to determine music temp
+  asteroidsLeft--;
+  music.setAsteroidRatio(
+    asteroidsLeft === 0 ? 1 : asteroidsLeft / asteroidsTotal
+  );
 
   //new level when no more asteroids
   if (asteroids.length === 0) {
@@ -247,9 +261,77 @@ const onKeyUp = (event) => {
 
 document.addEventListener("keydown", onKeyDown);
 document.addEventListener("keyup", onKeyUp);
+
+//setup sound effects
+
+function Sound(src, maxStreams = 2, vol = 1) {
+  this.streamNum = 0;
+  this.streams = [];
+  for (let i = 0; i < maxStreams; i++) {
+    this.streams.push(new Audio(src));
+    this.streams[i].volume = vol;
+  }
+
+  this.play = () => {
+    if (SOUND_ON) {
+      this.streamNum = (this.streamNum + 1) % maxStreams;
+      this.streams[this.streamNum].play();
+    }
+  };
+
+  this.stop = () => {
+    this.streams[this.streamNum].pause();
+    this.streams[this.streamNum].currentTime = 0;
+    this.streamNum = (this.streamNum + 1) % maxStreams;
+  };
+}
+
+const fxLaser = new Sound("./sounds/laser.m4a", LASER_MAX, 0.5);
+const fxExplode = new Sound("./sounds/explode.m4a", 1, 0.75);
+const fxHit = new Sound("./sounds/hit.m4a", 5, 0.5);
+const fxThrust = new Sound("./sounds/thrust.m4a", 5, 0.5);
+
+//setup music
+
+function Music(srcLow, srcHigh) {
+  this.soundLow = new Audio(srcLow);
+  this.soundHigh = new Audio(srcHigh);
+  this.soundIsLow = true;
+  this.tempo = 1;
+  this.beatTime = 0; //frames left until next beat
+
+  this.play = () => {
+    if (MUSIC_ON) {
+      if (this.soundIsLow) {
+        this.soundLow.play();
+      } else {
+        this.soundHigh.play();
+      }
+    }
+
+    this.soundIsLow = !this.soundIsLow;
+  };
+  this.tick = () => {
+    if (this.beatTime === 0) {
+      this.play();
+      this.beatTime = Math.ceil(this.tempo * FPS);
+    } else {
+      this.beatTime--;
+    }
+
+    this.setAsteroidRatio = (ratio) => {
+      this.tempo = 1.0 - (1.0 - ratio) * 0.75;
+    };
+  };
+}
+const music = new Music("sounds/music-low.m4a", "sounds/music-high.m4a");
+
 //setup game loop
 newGame();
 const update = () => {
+  //tick the music
+  music.tick();
+
   const blinkOn = ship.blinkNumber % 2 === 0;
   let shipIsExploding = ship.explodeTime > 0;
 
@@ -441,6 +523,7 @@ const update = () => {
   // thrust the ship
 
   if (ship.isThrusting && !ship.isDead) {
+    fxThrust.play();
     ship.thrust.x += (SHIP_THRUST * Math.cos(ship.a)) / FPS;
     ship.thrust.y -= (SHIP_THRUST * Math.sin(ship.a)) / FPS;
     if (!shipIsExploding && blinkOn) {
@@ -469,8 +552,10 @@ const update = () => {
       ctx.stroke();
     }
   } else {
+    //apply friction and slow the ship down
     ship.thrust.x -= (FRICTION * ship.thrust.x) / FPS;
     ship.thrust.y -= (FRICTION * ship.thrust.y) / FPS;
+    fxThrust.stop();
   }
 
   //move the lasers
