@@ -4,12 +4,25 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="styles.css" />
 
     <title>Asteroids</title>
     <meta name="description" content="A clone of the Asteroids game by Atari" />
   </head>
   <body>
+    <h1 class="logo">Asteroids</h1>
+    <div class="how-to-play">
+      <p class="text">
+        Use the left, right, and up arrow keys to move the spaceship
+      </p>
+      <p class="text">Press the spacebar to shoot</p>
+      <p class="text">Destroy asteroids to collect points</p>
+    </div>
+
     <canvas id="gameCanvas" width="700" height="500"></canvas>
     <script src="./script.js"></script>
   </body>
