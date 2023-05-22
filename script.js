@@ -1,21 +1,21 @@
 const SAVE_KEY_SCORE = "highscore"; //save key for local storage of score
-const FPS = 30; // frames per second
+const FPS = 50; // frames per second
 
 const SHIP_SIZE = 30; // ship height
 const TURN_SPEED = 360; // turn speed in degrees per second
-const SHIP_THRUST = 5; // acceleration of the ship
+const SHIP_THRUST = 4; // acceleration of the ship
 const SHIP_EXPLODE_DURATION = 0.3; //duration of the ship's explosion
 const SHIP_INV_DURATION = 3; //duration of the ship's invulnerability
 const SHIP_BLINK_DURATION = 0.1;
 const FRICTION = 0.7; // friction coefficient
-const ASTEROID_NUM = 2; // starting number of asteroids
+const ASTEROID_NUM = 3; // starting number of asteroids
 const ASTEROID_SIZE = 100; //starting size of asteroids
 const ASTEROID_SPEED = 50; // max starting speed of asteroids
 const ASTEROID_VERTICES = 10; //average number of vertices on each asteroid
 const ASTEROID_JAG = 0.4; //jaggedness of the asteroids
-const ASTEROID_POINTS_LG = 5;
-const ASTEROID_POINTS_MD = 10;
-const ASTEROID_POINTS_SM = 15;
+const ASTEROID_POINTS_LG = 1;
+const ASTEROID_POINTS_MD = 2;
+const ASTEROID_POINTS_SM = 5;
 
 const LASER_DIST = 0.45; //max dist laser can travel
 const LASER_MAX = 10; //max number of lasers on the screen at once
@@ -684,14 +684,18 @@ const update = () => {
   ctx.textBaseline = "middle";
   ctx.fillStyle = "white";
   ctx.font = `${TEXT_SIZE * 0.5}px arial`;
-  ctx.fillText(score, canvas.width - SHIP_SIZE / 2, TEXT_SIZE);
+  ctx.fillText(score.toLocaleString(), canvas.width - SHIP_SIZE / 2, TEXT_SIZE);
 
   //draw the highscore
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   ctx.fillStyle = "white";
-  ctx.font = `${TEXT_SIZE * 0.5}px arial`;
-  ctx.fillText(`Best: ${highScore}`, canvas.width / 2, TEXT_SIZE);
+  ctx.font = `${TEXT_SIZE * 0.3}px arial`;
+  ctx.fillText(
+    `Best: ${highScore.toLocaleString()}`,
+    canvas.width / 2,
+    TEXT_SIZE
+  );
 };
 
 setInterval(update, 1000 / FPS);

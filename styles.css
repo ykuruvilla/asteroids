@@ -1,5 +1,6 @@
 body {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   background-image: url("./background.jpg");
@@ -8,4 +9,24 @@ body {
 
 canvas {
   border: 1px solid white;
+}
+
+.logo {
+  font-family: "Press Start 2P", cursive;
+  color: white;
+}
+
+.how-to-play {
+  box-sizing: border-box;
+  background-color: black;
+  border: 1px solid white;
+  padding: 0 16px;
+  width: 700px;
+  margin-bottom: 20px;
+}
+
+.text {
+  color: white;
+  font-family: "Courier New", Courier, monospace;
+  text-align: center;
 }
